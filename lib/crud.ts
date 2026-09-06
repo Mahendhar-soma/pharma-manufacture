@@ -5,7 +5,7 @@ import type { RowDataPacket } from "mysql2";
 import { execute, query } from "@/lib/db";
 import { fail, getSearchParams, ok, paginate } from "@/lib/api";
 
-const SAFE_SORT = /^[a-zA-Z0-9_\.]+$/; 
+const SAFE_SORT = /^[a-zA-Z0-9_\.]+$/;
 
 export function buildListHandler(options: {
   table: string;
