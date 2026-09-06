@@ -15,8 +15,17 @@ export type SessionUser = {
   role_name: string;
 };
 
+// function getSecret() {
+//   const secret = process.env.JWT_SECRET || "pharma-dev-secret-change-me";
+//   return new TextEncoder().encode(secret);
+// }
 function getSecret() {
-  const secret = process.env.JWT_SECRET || "pharma-dev-secret-change-me";
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    throw new Error("JWT_SECRET is not configured");
+  }
+
   return new TextEncoder().encode(secret);
 }
 
