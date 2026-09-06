@@ -1,0 +1,9 @@
+import { HubOverviewSkeleton } from "@/components/skeletons";
+
+export default function Loading() {
+  return (
+    <div className="mx-auto max-w-7xl p-4 sm:p-6">
+      <HubOverviewSkeleton stats={5} links={5} />
+    </div>
+  );
+}
