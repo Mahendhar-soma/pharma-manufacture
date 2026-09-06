@@ -49,9 +49,9 @@ export type AccessLevel = "none" | "read" | "write";
 
 type RoleAccess = Partial<Record<ModuleKey, AccessLevel>>;
 
-const ALL_READ: RoleAccess = Object.fromEntries(
-  MODULES.map((m) => [m, "read" as AccessLevel]),
-);
+// const ALL_READ: RoleAccess = Object.fromEntries(
+//   MODULES.map((m) => [m, "read" as AccessLevel]),
+// );
 
 const ALL_WRITE: RoleAccess = Object.fromEntries(
   MODULES.map((m) => [m, "write" as AccessLevel]),
@@ -296,30 +296,32 @@ export function isPathAllowed(
     return { allowed: true, module: null };
   }
 
-  const module = resolveModule(pathname);
-  if (!module) {
+  const permissionModule = resolveModule(pathname);
+
+  if (!permissionModule) {
     // Unknown protected path: allow authenticated users (dashboard siblings)
     return { allowed: true, module: null };
   }
-
+  
   const needsWrite = methodNeedsWrite(method);
+  
   if (needsWrite) {
-    if (!canWrite(role, module)) {
+    if (!canWrite(role, permissionModule)) {
       return {
         allowed: false,
-        module,
-        reason: `Role lacks write access to ${module}`,
+        module: permissionModule,
+        reason: `Role lacks write access to ${permissionModule}`,
       };
     }
-  } else if (!canRead(role, module)) {
+  } else if (!canRead(role, permissionModule)) {
     return {
       allowed: false,
-      module,
-      reason: `Role lacks read access to ${module}`,
+      module: permissionModule,
+      reason: `Role lacks read access to ${permissionModule}`,
     };
   }
-
-  return { allowed: true, module };
+  
+  return { allowed: true, module: permissionModule };
 }
 
 /** Nav href → module for sidebar filtering */
