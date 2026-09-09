@@ -84,20 +84,44 @@ export async function PUT(request: Request) {
   try {
     const body = await request.json();
     if (!body.id) return fail("id is required");
+
+    const allowed = ["PLANNED", "ACTIVE", "ON_HOLD", "COMPLETED", "CANCELLED"];
+    const status = body.status != null ? String(body.status).trim() : null;
+    if (status && !allowed.includes(status)) {
+      return fail(`Invalid status. Use ${allowed.join(", ")}`);
+    }
+
+    // Quick status-only update
+    if (status && body.project_name === undefined && body.description === undefined) {
+      const result = await execute(`UPDATE research_projects SET status = ? WHERE id = ?`, [
+        status,
+        body.id,
+      ]);
+      if (result.affectedRows === 0) return fail("Project not found", 404);
+      const rows = await query<RowDataPacket[]>("SELECT * FROM research_projects WHERE id = ?", [
+        body.id,
+      ]);
+      return ok(rows[0], "Project status updated");
+    }
+
+    const project_name = String(body.project_name || "").trim();
+    if (!project_name) return fail("project_name is required");
+    if (!status) return fail("status is required");
+
     const result = await execute(
       `UPDATE research_projects SET
-        project_name = COALESCE(?, project_name),
-        description = COALESCE(?, description),
-        start_date = COALESCE(?, start_date),
-        end_date = COALESCE(?, end_date),
-        status = COALESCE(?, status)
+        project_name = ?,
+        description = ?,
+        start_date = ?,
+        end_date = ?,
+        status = ?
        WHERE id = ?`,
       [
-        body.project_name ?? null,
-        body.description ?? null,
-        body.start_date ?? null,
-        body.end_date ?? null,
-        body.status ?? null,
+        project_name,
+        body.description ? String(body.description).trim() : null,
+        body.start_date || null,
+        body.end_date || null,
+        status,
         body.id,
       ],
     );

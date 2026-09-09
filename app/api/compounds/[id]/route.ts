@@ -30,22 +30,42 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
   try {
     const { id } = await context.params;
     const body = await request.json();
+
+    const allowed = ["ACTIVE", "INACTIVE", "ARCHIVED"];
+    const status = body.status != null ? String(body.status).trim() : null;
+    if (status && !allowed.includes(status)) {
+      return fail(`Invalid status. Use ${allowed.join(", ")}`);
+    }
+
+    // Quick status-only
+    if (status && body.compound_name === undefined) {
+      const result = await execute(`UPDATE compounds SET status = ? WHERE id = ?`, [status, id]);
+      if (result.affectedRows === 0) return fail("Compound not found", 404);
+      const rows = await query<RowDataPacket[]>("SELECT * FROM compounds WHERE id = ?", [id]);
+      return ok(rows[0], "Compound status updated");
+    }
+
+    const compound_name = String(body.compound_name || "").trim();
+    if (!compound_name) return fail("compound_name is required");
+
     const result = await execute(
       `UPDATE compounds SET
-        compound_name = COALESCE(?, compound_name),
-        chemical_formula = COALESCE(?, chemical_formula),
-        molecular_weight = COALESCE(?, molecular_weight),
-        smiles = COALESCE(?, smiles),
-        description = COALESCE(?, description),
-        status = COALESCE(?, status)
+        compound_name = ?,
+        chemical_formula = ?,
+        molecular_weight = ?,
+        smiles = ?,
+        description = ?,
+        status = ?
        WHERE id = ?`,
       [
-        body.compound_name ?? null,
-        body.chemical_formula ?? null,
-        body.molecular_weight ?? null,
-        body.smiles ?? null,
-        body.description ?? null,
-        body.status ?? null,
+        compound_name,
+        body.chemical_formula ? String(body.chemical_formula).trim() : null,
+        body.molecular_weight != null && body.molecular_weight !== ""
+          ? Number(body.molecular_weight)
+          : null,
+        body.smiles ? String(body.smiles).trim() : null,
+        body.description ? String(body.description).trim() : null,
+        status || "ACTIVE",
         id,
       ],
     );

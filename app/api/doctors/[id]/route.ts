@@ -34,22 +34,22 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
     const body = await request.json();
     const result = await execute(
       `UPDATE doctors SET
-        doctor_name = COALESCE(?, doctor_name),
-        specialization = COALESCE(?, specialization),
-        phone = COALESCE(?, phone),
-        email = COALESCE(?, email),
-        hospital_id = COALESCE(?, hospital_id),
-        city = COALESCE(?, city),
-        status = COALESCE(?, status)
+        doctor_name = ?,
+        specialization = ?,
+        phone = ?,
+        email = ?,
+        hospital_id = ?,
+        city = ?,
+        status = ?
        WHERE id = ?`,
       [
-        body.doctor_name ?? null,
-        body.specialization ?? null,
-        body.phone ?? null,
-        body.email ?? null,
-        body.hospital_id ?? null,
-        body.city ?? null,
-        body.status ?? null,
+        String(body.doctor_name || "").trim() || null,
+        body.specialization ? String(body.specialization).trim() : null,
+        body.phone ? String(body.phone).trim() : null,
+        body.email ? String(body.email).trim() : null,
+        body.hospital_id ? Number(body.hospital_id) : null,
+        body.city ? String(body.city).trim() : null,
+        body.status || "ACTIVE",
         id,
       ],
     );

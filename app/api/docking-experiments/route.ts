@@ -80,3 +80,45 @@ export async function POST(request: Request) {
     return fail("Unable to create docking experiment", 500);
   }
 }
+
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    if (!body.id) return fail("id is required");
+    if (!body.compound_id || !body.target_name) {
+      return fail("compound_id and target_name are required");
+    }
+
+    const result = await execute(
+      `UPDATE docking_experiments SET
+        compound_id = ?,
+        target_name = ?,
+        software_name = ?,
+        binding_score = ?,
+        experiment_date = ?,
+        result = ?,
+        remarks = ?
+       WHERE id = ?`,
+      [
+        Number(body.compound_id),
+        String(body.target_name).trim(),
+        body.software_name ? String(body.software_name).trim() : null,
+        body.binding_score != null && body.binding_score !== ""
+          ? Number(body.binding_score)
+          : null,
+        body.experiment_date || null,
+        body.result ? String(body.result).trim() : null,
+        body.remarks ? String(body.remarks).trim() : null,
+        body.id,
+      ],
+    );
+    if (result.affectedRows === 0) return fail("Docking experiment not found", 404);
+    const rows = await query<RowDataPacket[]>("SELECT * FROM docking_experiments WHERE id = ?", [
+      body.id,
+    ]);
+    return ok(rows[0], "Docking experiment updated");
+  } catch (error) {
+    console.error("Docking experiment update error:", error);
+    return fail("Unable to update docking experiment", 500);
+  }
+}

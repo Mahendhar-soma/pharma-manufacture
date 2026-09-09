@@ -79,20 +79,22 @@ export async function PUT(request: Request) {
   try {
     const body = await request.json();
     if (!body.id) return fail("id is required");
+    const mr_name = String(body.mr_name || "").trim();
+    if (!mr_name) return fail("mr_name is required");
     const result = await execute(
       `UPDATE medical_representatives SET
-        mr_name = COALESCE(?, mr_name),
-        phone = COALESCE(?, phone),
-        email = COALESCE(?, email),
-        territory = COALESCE(?, territory),
-        status = COALESCE(?, status)
+        mr_name = ?,
+        phone = ?,
+        email = ?,
+        territory = ?,
+        status = ?
        WHERE id = ?`,
       [
-        body.mr_name ?? null,
-        body.phone ?? null,
-        body.email ?? null,
-        body.territory ?? null,
-        body.status ?? null,
+        mr_name,
+        body.phone ? String(body.phone).trim() : null,
+        body.email ? String(body.email).trim() : null,
+        body.territory ? String(body.territory).trim() : null,
+        body.status || "ACTIVE",
         body.id,
       ],
     );

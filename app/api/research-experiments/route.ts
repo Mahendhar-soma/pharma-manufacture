@@ -88,3 +88,41 @@ export async function POST(request: Request) {
     return fail("Unable to create experiment", 500);
   }
 }
+
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    if (!body.id) return fail("id is required");
+    if (!body.project_id || !body.experiment_name) {
+      return fail("project_id and experiment_name are required");
+    }
+
+    const result = await execute(
+      `UPDATE research_experiments SET
+        project_id = ?,
+        compound_id = ?,
+        experiment_name = ?,
+        experiment_date = ?,
+        result = ?,
+        remarks = ?
+       WHERE id = ?`,
+      [
+        Number(body.project_id),
+        body.compound_id ? Number(body.compound_id) : null,
+        String(body.experiment_name).trim(),
+        body.experiment_date || null,
+        body.result ? String(body.result).trim() : null,
+        body.remarks ? String(body.remarks).trim() : null,
+        body.id,
+      ],
+    );
+    if (result.affectedRows === 0) return fail("Experiment not found", 404);
+    const rows = await query<RowDataPacket[]>("SELECT * FROM research_experiments WHERE id = ?", [
+      body.id,
+    ]);
+    return ok(rows[0], "Experiment updated");
+  } catch (error) {
+    console.error("Research experiment update error:", error);
+    return fail("Unable to update experiment", 500);
+  }
+}

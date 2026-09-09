@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { cn, statusBadgeClass } from "@/lib/utils";
 import { ChevronDown, Search } from "lucide-react";
 import {
@@ -352,6 +353,69 @@ export function EmptyState({
       <div className="text-base font-medium text-slate-800">{title}</div>
       {description ? <p className="mt-1 text-sm text-slate-500">{description}</p> : null}
       {action ? <div className="mt-4 flex justify-center">{action}</div> : null}
+    </div>
+  );
+}
+
+/** Centered modal dialog — Escape / backdrop close when onClose is provided */
+export function Modal({
+  open,
+  onClose,
+  title,
+  description,
+  children,
+  footer,
+  size = "md",
+}: {
+  open: boolean;
+  onClose?: () => void;
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+  footer?: React.ReactNode;
+  size?: "sm" | "md" | "lg";
+}) {
+  useEffect(() => {
+    if (!open || !onClose) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose?.();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  const width =
+    size === "sm" ? "max-w-md" : size === "lg" ? "max-w-2xl" : "max-w-lg";
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-4 sm:items-center"
+      role="presentation"
+      onClick={() => onClose?.()}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        className={cn(
+          "w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-xl",
+          width,
+        )}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-4">
+          <h2 id="modal-title" className="text-lg font-semibold text-slate-900">
+            {title}
+          </h2>
+          {description ? (
+            <p className="mt-1 text-sm text-slate-500">{description}</p>
+          ) : null}
+        </div>
+        <div>{children}</div>
+        {footer ? <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">{footer}</div> : null}
+      </div>
     </div>
   );
 }

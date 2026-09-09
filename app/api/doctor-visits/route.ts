@@ -96,20 +96,49 @@ export async function PUT(request: Request) {
   try {
     const body = await request.json();
     if (!body.id) return fail("id is required");
+
+    const status = body.status != null ? String(body.status).trim() : null;
+    if (status && !["PLANNED", "COMPLETED", "CANCELLED", "FOLLOW_UP"].includes(status)) {
+      return fail("Invalid status. Use PLANNED, COMPLETED, CANCELLED, or FOLLOW_UP");
+    }
+
+    // Quick status change: only id + status (+ optional follow_up_date)
+    const statusOnly =
+      body.visit_date === undefined &&
+      body.purpose === undefined &&
+      body.notes === undefined &&
+      status;
+
+    if (statusOnly) {
+      const result = await execute(
+        `UPDATE doctor_visits SET
+          status = ?,
+          follow_up_date = COALESCE(?, follow_up_date)
+         WHERE id = ?`,
+        [status, body.follow_up_date || null, body.id],
+      );
+      if (result.affectedRows === 0) return fail("Visit not found", 404);
+      const rows = await query<RowDataPacket[]>("SELECT * FROM doctor_visits WHERE id = ?", [body.id]);
+      return ok(rows[0], "Visit status updated");
+    }
+
+    if (!body.visit_date) return fail("visit_date is required");
+    if (!status) return fail("status is required");
+
     const result = await execute(
       `UPDATE doctor_visits SET
-        visit_date = COALESCE(?, visit_date),
-        purpose = COALESCE(?, purpose),
-        notes = COALESCE(?, notes),
-        follow_up_date = COALESCE(?, follow_up_date),
-        status = COALESCE(?, status)
+        visit_date = ?,
+        purpose = ?,
+        notes = ?,
+        follow_up_date = ?,
+        status = ?
        WHERE id = ?`,
       [
-        body.visit_date ?? null,
-        body.purpose ?? null,
-        body.notes ?? null,
-        body.follow_up_date ?? null,
-        body.status ?? null,
+        body.visit_date,
+        body.purpose ? String(body.purpose).trim() : null,
+        body.notes ? String(body.notes).trim() : null,
+        body.follow_up_date || null,
+        status,
         body.id,
       ],
     );

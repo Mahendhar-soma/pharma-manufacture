@@ -96,26 +96,50 @@ export async function PUT(request: Request) {
   try {
     const body = await request.json();
     if (!body.id) return fail("id is required");
+
+    const allowed = ["PLANNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"];
+    const status = body.status != null ? String(body.status).trim() : null;
+    if (status && !allowed.includes(status)) {
+      return fail(`Invalid status. Use ${allowed.join(", ")}`);
+    }
+
+    if (status && body.study_title === undefined) {
+      const result = await execute(`UPDATE preclinical_studies SET status = ? WHERE id = ?`, [
+        status,
+        body.id,
+      ]);
+      if (result.affectedRows === 0) return fail("Study not found", 404);
+      const rows = await query<RowDataPacket[]>("SELECT * FROM preclinical_studies WHERE id = ?", [
+        body.id,
+      ]);
+      return ok(rows[0], "Study status updated");
+    }
+
+    const study_title = String(body.study_title || "").trim();
+    const study_type = String(body.study_type || "").trim();
+    if (!study_title || !study_type) return fail("study_title and study_type are required");
+    if (!status) return fail("status is required");
+
     const result = await execute(
       `UPDATE preclinical_studies SET
-        study_title = COALESCE(?, study_title),
-        study_type = COALESCE(?, study_type),
-        compound_id = COALESCE(?, compound_id),
-        study_date = COALESCE(?, study_date),
-        researcher = COALESCE(?, researcher),
-        result = COALESCE(?, result),
-        remarks = COALESCE(?, remarks),
-        status = COALESCE(?, status)
+        study_title = ?,
+        study_type = ?,
+        compound_id = ?,
+        study_date = ?,
+        researcher = ?,
+        result = ?,
+        remarks = ?,
+        status = ?
        WHERE id = ?`,
       [
-        body.study_title ?? null,
-        body.study_type ?? null,
-        body.compound_id ?? null,
-        body.study_date ?? null,
-        body.researcher ?? null,
-        body.result ?? null,
-        body.remarks ?? null,
-        body.status ?? null,
+        study_title,
+        study_type,
+        body.compound_id ? Number(body.compound_id) : null,
+        body.study_date || null,
+        body.researcher ? String(body.researcher).trim() : null,
+        body.result ? String(body.result).trim() : null,
+        body.remarks ? String(body.remarks).trim() : null,
+        status,
         body.id,
       ],
     );
