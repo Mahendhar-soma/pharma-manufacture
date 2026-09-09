@@ -16,7 +16,6 @@ import {
   LayoutDashboard,
   Microscope,
   Package,
-  Pill,
   ShieldCheck,
   Stethoscope,
   Truck,
@@ -27,6 +26,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { canRead, navHrefModule, type RoleCode } from "@/lib/permissions";
+import BrandLogo from "@/components/brand/BrandLogo";
 
 type NavChild = { label: string; href: string };
 type NavItem = {
@@ -207,14 +207,13 @@ export function SidebarContent({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 border-b border-slate-800 px-4 py-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-600 text-white">
-          <Pill size={20} />
-        </div>
-        <div>
-          <div className="text-sm font-semibold text-white">Pharma Life</div>
-          <div className="text-xs text-slate-400">{roleCode}</div>
-        </div>
+      <div className="border-b border-slate-800 px-3 py-3 sm:px-4 sm:py-4">
+        <BrandLogo
+          size="md"
+          subtitle={roleCode}
+          textClassName="text-white"
+          priority
+        />
       </div>
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         {items.map((item) => (

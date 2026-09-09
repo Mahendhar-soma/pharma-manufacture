@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, Button, Input, Label } from "@/components/ui";
-import { Pill } from "lucide-react";
+import BrandLogo from "@/components/brand/BrandLogo";
 import { cn } from "@/lib/utils";
 
 const DEMO_ACCOUNTS = [
@@ -54,12 +54,16 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(13,148,136,0.35),_transparent_45%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.25),_transparent_40%)]" />
-      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-4 py-10 sm:px-6 lg:flex-row lg:items-center lg:gap-16">
-        <div className="mb-10 max-w-xl text-white lg:mb-0">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-teal-100">
-            <Pill size={14} /> Pharma Life Sciences ERP
-          </div>
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-4 py-8 sm:px-6 sm:py-10 lg:flex-row lg:items-center lg:gap-16">
+        <div className="mb-8 max-w-xl text-white sm:mb-10 lg:mb-0">
+          <BrandLogo
+            size="xl"
+            subtitle="Life Sciences ERP"
+            textClassName="text-white"
+            className="mb-6 sm:mb-8"
+            priority
+          />
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
             Manage discovery to commercial in one place
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-300 sm:text-base">
@@ -70,7 +74,7 @@ export default function LoginPage() {
 
         <form
           onSubmit={onSubmit}
-          className="w-full max-w-md rounded-2xl border border-white/10 bg-white p-6 shadow-2xl sm:p-8"
+          className="w-full max-w-md rounded-2xl border border-white/10 bg-white p-5 shadow-2xl sm:p-8"
         >
           <h2 className="text-xl font-semibold text-slate-900">Sign in</h2>
           <p className="mt-1 text-sm text-slate-500">

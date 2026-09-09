@@ -20,12 +20,20 @@ export function DocHeader({
   return (
     <div className="border-b-2 border-slate-900 pb-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-teal-800">
-            Pharma Life Sciences
+        <div className="flex items-start gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element -- print-friendly static asset */}
+          <img
+            src="/logo.png"
+            alt="Pharma Life Sciences"
+            className="h-12 w-12 shrink-0 object-contain sm:h-14 sm:w-14"
+          />
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-teal-800">
+              Pharma Life Sciences
+            </div>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight">{docTitle}</h1>
+            <div className="mt-1 text-sm text-slate-600">Document No: {docNumber}</div>
           </div>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight">{docTitle}</h1>
-          <div className="mt-1 text-sm text-slate-600">Document No: {docNumber}</div>
         </div>
         <div className="text-sm text-slate-600 sm:text-right">
           <div>Manufacturing ERP</div>

@@ -16,6 +16,11 @@ const display = IBM_Plex_Sans({
 export const metadata: Metadata = {
   title: "Pharma Life Sciences ERP",
   description: "Pharmaceutical Life Sciences Management Application",
+  icons: {
+    icon: [{ url: "/logo.png", type: "image/png" }],
+    apple: [{ url: "/logo.png", type: "image/png" }],
+    shortcut: ["/logo.png"],
+  },
 };
 
 export default function RootLayout({

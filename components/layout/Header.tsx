@@ -5,6 +5,7 @@ import { LogOut, Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 import NotificationBell from "./NotificationBell";
 import { Button } from "@/components/ui";
+import { BrandMark } from "@/components/brand/BrandLogo";
 
 export default function Header({
   title,
@@ -48,7 +49,7 @@ export default function Header({
     <>
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <div className="flex min-w-0 items-center gap-3">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={onMenuClick}
@@ -57,6 +58,11 @@ export default function Header({
             >
               <Menu size={18} />
             </button>
+            <BrandMark
+              size={36}
+              className="h-8 w-8 shrink-0 sm:h-9 sm:w-9 lg:hidden"
+              priority
+            />
             <div className="min-w-0">
               <h1 className="truncate text-lg font-semibold text-slate-900 sm:text-xl">{title}</h1>
               <p className="hidden text-xs text-slate-500 sm:block">
